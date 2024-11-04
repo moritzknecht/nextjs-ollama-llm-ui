@@ -3,7 +3,20 @@ import { z } from 'zod';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
 import { Readability, ReadabilityResult } from "@paoramen/cheer-reader"
+import { SearxngService, type SearxngServiceConfig } from 'searxng';
 
+const config: SearxngServiceConfig = {
+    baseURL: 'https://searx.bndkt.io/',
+    defaultSearchParams: {
+        format: 'json',
+        lang: 'auto',
+    },
+    defaultRequestHeaders: {
+        'Content-Type': 'application/json',
+    },
+};
+
+const searxngService = new SearxngService(config);
 /*
 function extractLinks($: cheerio.CheerioAPI): string[] {
 
@@ -36,12 +49,30 @@ export const fetch_url = tool({
                 }
             });
             const text = htmlToText(response.data);
-            console.log('url fetched')
+            // console.log('url fetched', text)
+
+
             return text;
         } catch (error) {
-            console.log('error fetching url', error)
+            console.log('error fetching url', url)
             throw error
         }
 
+    }
+})
+
+export const search_web = tool({
+    description: 'Search the web for a query',
+    parameters: z.object({
+        query: z.string().describe('The query to search for'),
+    }),
+    execute: async ({ query }) => {
+        try {
+            const results = await searxngService.search(query);
+            console.log(results);
+        } catch (error) {
+            console.error('Search failed:', error);
+            throw error
+        }
     }
 })

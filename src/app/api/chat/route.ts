@@ -1,7 +1,7 @@
 import { createOllama } from 'ollama-ai-provider';
 import { streamText, convertToCoreMessages, CoreMessage, UserContent, tool } from 'ai';
 
-import { fetch_url } from '../lib/tools';
+import { fetch_url, search_web } from '../lib/tools';
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
@@ -22,19 +22,25 @@ export async function POST(req: Request) {
 
   // Add images if they exist
   data?.images?.forEach((imageUrl: string) => {
-    const image = imageUrl;
+
+    const image = imageUrl
+    console.log(image);
     messageContent.push({ type: 'image', image });
   });
+  let tools = undefined
+  if (currentMessage.content.includes('https://')) {
+    tools = { fetch_url }
+  }
 
   // Stream text using the ollama model
   const result = await streamText({
     model: ollama(selectedModel),
-    tools: { fetch_url },
+    tools,
     messages: [
       ...convertToCoreMessages(initialMessages),
       { role: 'user', content: messageContent },
     ],
-    maxSteps: 5,
+    maxSteps: 1,
 
   },);
 
