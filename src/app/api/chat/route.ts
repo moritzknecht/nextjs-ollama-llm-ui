@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       ...convertToCoreMessages(initialMessages),
       { role: 'user', content: messageContent },
     ],
-    maxSteps: 1,
+    maxSteps: 5,
 
   },);
 
